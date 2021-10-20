@@ -134,13 +134,6 @@ class my_agent(Agent):
             else:
                 return bool(len([s for s in mission if s in self.other_spies])> 0)
         else:
-            # prob = sum([self.spy_probabilities[p] for p in mission if p != self.player_number])
-            # print("FAILURE PROBABILITY = " + str(prob))
-            # return bool(prob < 0.75) # requires revamp (Bayes theorem, etc) change according to the number of players
-
-            # todo: probability of there being 1 spy given that there are x amount of people
-            # += prob of spy given x people = 1-self.spy_probabilities[p] * self.spy_probabilities[p] or 1/number of player excluding self / number of players
-
             sortedProb = self.spy_probabilities.copy()
             sortedProb.sort()
             minProb = 0.0
@@ -253,41 +246,35 @@ class my_agent(Agent):
         # No betrayals occurred, mission successful
         if num_fails == 0:
             for p in range(self.number_of_players):
-                if p != self.player_number:
-                    # Check if player voted yes for the mission
-                    if p in self.mission_votes[self.round_number][2] and self.round_number != 1 and p:
-                        #self.spy_probabilities[p] -= 0 # a certain value
-                        #self._update_probabilities(mission, num_fails)
+                if p == self.player_number: # Skip yourself because there's no need to update your own info
+                    continue
+                # Check if player voted yes for the mission
+                if p in self.mission_votes[self.round_number][2] and self.round_number != 1 and p:
+                    #self.spy_probabilities[p] -= 0 # a certain value
+                    #self._update_probabilities(mission, num_fails)
+                    self.player_info[p]["resistanceBehaviour"] += 1
+                elif p not in self.mission_votes[self.round_number][2] and self.round_number != 1: 
+                    #self._update_probabilities(mission, num_fails)
+                    #self.spy_probabilities[p] += 0 # a certain value
+                    self.player_info[p]["assistedSpies"] += 1
+                else: # First round mission outcome 
+                    if p in mission or p in self.mission_votes[self.round_number][2]:
                         self.player_info[p]["resistanceBehaviour"] += 1
-                    elif p not in self.mission_votes[self.round_number][2] and self.round_number != 1: 
-                        #self._update_probabilities(mission, num_fails)
-                        #self.spy_probabilities[p] += 0 # a certain value
+                    else:
                         self.player_info[p]["assistedSpies"] += 1
-                    else: # First round mission outcome 
-                        if p in mission or p in self.mission_votes[self.round_number][2]:
-                            self.player_info[p]["resistanceBehaviour"] += 1
-                        else:
-                            self.player_info[p]["assistedSpies"] += 1
 
         # There were betrayal(s) but mission was still successful
         # A little tricky because spies may reject due to insiffucient spies in mission
         elif num_fails > 0 and mission_success:
             for p in range(self.number_of_players):
                 if p in self.mission_votes[self.round_number][2]:
-                    self.spy_probabilities[p] += 0 # a certain value
+                    #self.spy_probabilities[p] += 0 # a certain value
                     self._update_probabilities(mission, num_fails)
 
-                    # prob of player x being a spy given that there are y amounts of fails in mission in z number of people = float()
-                    # 1 * (num_fail/len(mission)) / 
-
-                    # prob of 2 or more spies given at least one spy based on failures =
-                    # ref = 0
-                    # total_combination = self.spy_count[self.number_of_players]+1
-                    # 1 * float(float([ref += 1 for p in range(total_combination) if p > 1]/total_combination) / float([ref += 1 for p in range(total_combination) if p > 0]/(total_combination)
+    
                 else: 
                     self._update_probabilities(mission, num_fails)
-
-                    self.spy_probabilities[p] -= 0 # a certain value
+                    #self.spy_probabilities[p] -= 0 # a certain value
 
         # Mission failed
         else:
@@ -319,7 +306,6 @@ class my_agent(Agent):
                     if p in self.mission_votes[self.round_number][2] and p != self.player_number:
                         self.player_info[p]["assistedSpies"] += 1
 
-    # todo: include players that voter for the mission which failed
 
     def round_outcome(self, rounds_complete, missions_failed):
         '''
@@ -511,7 +497,7 @@ class my_agent(Agent):
                 print("Resistance behaviour influence: " + str(influence) + " for player: " + str(p))
 
             elif resistance_actions == 1:
-                influence = self.resistanceBehaviour_WEIGHT + 1
+                influence = 1 - self.resistanceBehaviour_WEIGHT 
                 self.spy_probabilities[p] *= influence 
                 self.player_info[p]["resistanceBehaviour"] = 0
                 print("Resistance behaviour influence: " + str(influence) + " for player: " + str(p))
