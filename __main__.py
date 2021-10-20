@@ -54,14 +54,6 @@ if __name__ == "__main__":
     total_wins = 0
     number_of_games = 1000
     for _ in range(number_of_games):
-        seed = 0
-        if SEED:
-            random.seed(SEED)
-            np.random.seed(SEED)
-        else:
-            seed = random.randrange(0, 2 ** 32 - 1)
-            random.seed(seed)
-            np.random.seed(seed)
         game = Game(agents)
         game.play()
         if DEBUG:

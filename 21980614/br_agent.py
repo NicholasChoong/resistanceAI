@@ -77,6 +77,12 @@ class BRAgent(Agent):
 
         self.init_sus_table(number_of_players, player_number, self.number_of_spies)
 
+    def is_spy(self):
+        """
+        returns True iff the agent is a spy
+        """
+        return self.player_number in self.spy_list
+
     def propose_mission(self, team_size: int, betrayals_required: int = 1) -> list[int]:
         """
         This method is called when the agent is required to lead (propose) a mission.
@@ -401,57 +407,15 @@ class BRAgent(Agent):
                 The probability of pB.
         """
         pB = 0.0
-        if (
-            DEBUG
-            and not self.spy
-            and self.player_number == PLAYER_NUMBER
-            and self.total_mission == 2
-        ):
-            console.log("Combinations:", len(combinations_list))
         for spies in combinations_list:
             pB = 0.0
-            pbk = 1.0
+            pBx = 1.0
             resistances = list(set(mission) - set(spies))
-            if (
-                DEBUG
-                and not self.spy
-                and self.player_number == PLAYER_NUMBER
-                and self.total_mission == 2
-            ):
-                console.log("Resistances", resistances)
             for spy in spies:
-                pbk *= self.sus_table[spy]
-            if (
-                DEBUG
-                and not self.spy
-                and self.player_number == PLAYER_NUMBER
-                and self.total_mission == 2
-            ):
-                console.log("spy pbk:", pbk)
+                pBx *= self.sus_table[spy]
             for resistance in resistances:
-                pbk *= 1 - self.sus_table[resistance]
-                if (
-                    DEBUG
-                    and not self.spy
-                    and self.player_number == PLAYER_NUMBER
-                    and self.total_mission == 2
-                ):
-                    console.log(
-                        "Resistance:",
-                        resistance,
-                        "sus_point:",
-                        self.sus_table[resistance],
-                        "pbk:",
-                        pbk,
-                    )
-            if (
-                DEBUG
-                and not self.spy
-                and self.player_number == PLAYER_NUMBER
-                and self.total_mission == 2
-            ):
-                console.log("resistance pbk:", pbk)
-            pB += pbk
+                pBx *= 1 - self.sus_table[resistance]
+            pB += pBx
         if not pB:
             return 1.0
         return pB
