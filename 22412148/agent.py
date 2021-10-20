@@ -96,7 +96,7 @@ def _update_probabilities(self, mission, fails_occurred):
             not_in_mission.append(player)
 
     self.missionCombination = _combination_calc(self, mission, fails_occurred)
-    self.non_missionCombination = _combination_calc(self, not_in_mission, (self.number_of_players-fails_occurred))
+    self.non_missionCombination = _combination_calc(self, not_in_mission, (self.number_of_spies-fails_occurred))
 
     # Calculate P(A|B) for each player: probability of them being a spy given the last mission
     for player in range(self.number_of_players):
@@ -130,23 +130,23 @@ def _behavioural_update(self):
 
     player_list = [p for p in range(self.number_of_players) if p != self.player_number]
     for p in player_list:
-        spy_assists = self.player_info[p]["helpedSpies"]
+        spy_assists = self.player_info[p]["assistedSpies"]
         if spy_assists > 0:
-            influence = (pow((1+self.helpedSpies_WEIGHT), spy_assists) * self.helpedSpies_WEIGHT) + 1
+            influence = (pow((1+self.assistedSpies_WEIGHT), spy_assists) * self.assistedSpies_WEIGHT) + 1
             self.spy_probabilities[p] *= influence 
-            self.player_info[p]["helpedSpies"] = 0
+            self.player_info[p]["assistedSpies"] = 0
 
-        spy_actions = self.player_info[p]["behavedLikeSpy"]
+        spy_actions = self.player_info[p]["spyBehaviour"]
         if spy_actions > 0:
-            influence = (pow((1+self.behavedLikeSpy_WEIGHT), spy_actions) * self.behavedLikeSpy_WEIGHT) + 1
+            influence = (pow((1+self.spyBehaviour_WEIGHT), spy_actions) * self.spyBehaviour_WEIGHT) + 1
             self.spy_probabilities[p] *= influence 
-            self.player_info[p]["behavedLikeSpy"] = 0
+            self.player_info[p]["spyBehaviour"] = 0
 
-        resistance_actions = self.player_info[p]["behavedLikeResistance"]
+        resistance_actions = self.player_info[p]["resistanceBehaviour"]
         if resistance_actions > 0:
-            influence = 1 - (pow((1+self.behavedLikeResistance_WEIGHT), resistance_actions) * self.behavedLikeResistance_WEIGHT)
+            influence = 1 - (pow((1+self.resistanceBehaviour_WEIGHT), resistance_actions) * self.resistanceBehaviour_WEIGHT)
             self.spy_probabilities[p] *= influence 
-            self.player_info[p]["behavedLikeResistance"] = 0
+            self.player_info[p]["resistanceBehaviour"] = 0
 
 class Agent:
     '''An abstract super class for an agent in the game The Resistance.
@@ -294,13 +294,13 @@ class my_agent(Agent):
 
         print("AI PLAYER NUMBER IS: " + str(self.player_number))
 
-        self.helpedSpies_WEIGHT = 0.25
-        self.behavedLikeSpy_WEIGHT = 0.5
-        self.behavedLikeResistance_WEIGHT = 0.1
+        self.assistedSpies_WEIGHT = 0.25
+        self.spyBehaviour_WEIGHT = 0.5
+        self.resistanceBehaviour_WEIGHT = 0.1
 
         for i in range(self.number_of_players):
             if i != self.player_number:
-                self.player_info[i] = {"helpedSpies": 0, "behavedLikeSpy": 0, "behavedLikeResistance": 0, "totalSuspicious: ": 0.0} 
+                self.player_info[i] = {"assistedSpies": 0, "spyBehaviour": 0, "resistanceBehaviour": 0, "totalSuspicious: ": 0.0} 
                 # To retrieve information: self.player_info[playernumber]["helpledSpies"]
                 # To be used as a counter for calculation counter of 2: 1+(1.25*0.25)*spyprobability, 3: 1+(1.25*1.25*0.25)*spyprobability
                 # Reset counter after every mission
@@ -323,9 +323,9 @@ class my_agent(Agent):
             # print('PROBABILITIES OF PLAYERS: ')
             # print(self.spy_probabilities)
 
-            # helpedSpies               assisted the spy team; voted for failed missions                                                            1+0.25   how much influence this behaviour
-            # behavedLikeSpy            general suspicious behaviour; votes no on the team they are not in when mission size = number of resistance 1+0.50   should have on the spyness
-            # behavedLikeResistance     vote against a team they themselves are on                                                                  1-0.1 
+            # assistedSpies               assisted the spy team; voted for failed missions                                                            1+0.25   how much influence this behaviour
+            # spyBehaviour            general suspicious behaviour; votes no on the team they are not in when mission size = number of resistance 1+0.50   should have on the spyness
+            # resistanceBehaviour     vote against a team they themselves are on                                                                  1-0.1 
 
 
 
@@ -458,7 +458,7 @@ class my_agent(Agent):
             if collections.Counter(mission) == collections.Counter(ideal_team):
                 for player in range(self.number_of_players):
                     if player != self.player_number and player not in votes:
-                        self.player_info[player]["behavedLikeResistance"] += 1 # COUNTER HERE
+                        self.player_info[player]["resistanceBehaviour"] += 1 # COUNTER HERE
 
         # If mission was voted off, increment proposal number
         # If the mission could have been successful, but was voted off, increase suspicion levels
@@ -468,7 +468,7 @@ class my_agent(Agent):
             if collections.Counter(mission) == collections.Counter(ideal_team):
                 for player in range(self.number_of_players):
                     if player != self.player_number and player not in votes:
-                        self.player_info[player]["behavedLikeSpy"] += 1 # COUNTER HERE
+                        self.player_info[player]["spyBehaviour"] += 1 # COUNTER HERE
 
         # Other behavioural checks
         for voter in votes:
@@ -476,14 +476,14 @@ class my_agent(Agent):
                 continue    # Skip if myself
             if voter not in mission and len(mission) == self.number_of_resistance:
                 # They are suspicious because they are voting for a mission they are not in when team members = resistance number
-                self.player_info[voter]["behavedLikeSpy"] += 1 # COUNTER HERE
+                self.player_info[voter]["spyBehaviour"] += 1 # COUNTER HERE
 
         for player in mission:
             if player == self.player_number:
                 continue # Skip if myself
             if player not in votes:
                 # Voting against mission when they are on it may be resistance like
-                self.player_info[player]["behavedLikeResistance"] += 1 # COUNTER HERE
+                self.player_info[player]["resistanceBehaviour"] += 1 # COUNTER HERE
 
     def betray(self, mission, proposer):
         # When not a spy, never betray (precautionary check)
