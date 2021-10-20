@@ -3,9 +3,9 @@ import numpy as np
 from rich.console import Console
 from rich.traceback import install
 
-from random_agent import RandomAgent
-from br_agent import BRAgent
-from game import Game
+from s21980614.random_agent import RandomAgent
+from s21980614.br_agent import BRAgent
+from s21980614.game import Game
 
 install(show_locals=True)
 
