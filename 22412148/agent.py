@@ -131,22 +131,44 @@ def _behavioural_update(self):
     player_list = [p for p in range(self.number_of_players) if p != self.player_number]
     for p in player_list:
         spy_assists = self.player_info[p]["assistedSpies"]
-        if spy_assists > 0:
-            influence = (pow((1+self.assistedSpies_WEIGHT), spy_assists) * self.assistedSpies_WEIGHT) + 1
+        if spy_assists > 1:
+            influence = (pow((1+self.assistedSpies_WEIGHT), spy_assists-1) * self.assistedSpies_WEIGHT) + 1
             self.spy_probabilities[p] *= influence 
             self.player_info[p]["assistedSpies"] = 0
+            print("Spy assist influence: " + str(influence) + " for player: " + str(p))
+
+        elif spy_assists == 1:
+            influence = self.assistedSpies_WEIGHT + 1
+            self.spy_probabilities[p] *= influence 
+            self.player_info[p]["assistedSpies"] = 0
+            print("Spy assist influence: " + str(influence) + " for player: " + str(p))
 
         spy_actions = self.player_info[p]["spyBehaviour"]
-        if spy_actions > 0:
-            influence = (pow((1+self.spyBehaviour_WEIGHT), spy_actions) * self.spyBehaviour_WEIGHT) + 1
+        if spy_actions > 1:
+            influence = (pow((1+self.spyBehaviour_WEIGHT), spy_actions-1) * self.spyBehaviour_WEIGHT) + 1
             self.spy_probabilities[p] *= influence 
             self.player_info[p]["spyBehaviour"] = 0
+            print("Spy behaviour influence: " + str(influence) + " for player: " + str(p))
+
+        elif spy_actions == 1:
+            influence = self.spyBehaviour_WEIGHT + 1
+            self.spy_probabilities[p] *= influence 
+            self.player_info[p]["spyBehaviour"] = 0
+            print("Spy behaviour influence: " + str(influence) + " for player: " + str(p))
 
         resistance_actions = self.player_info[p]["resistanceBehaviour"]
-        if resistance_actions > 0:
-            influence = 1 - (pow((1+self.resistanceBehaviour_WEIGHT), resistance_actions) * self.resistanceBehaviour_WEIGHT)
+        if resistance_actions > 1:
+            influence = 1 - (pow((1+self.resistanceBehaviour_WEIGHT), resistance_actions-1) * self.resistanceBehaviour_WEIGHT)
             self.spy_probabilities[p] *= influence 
             self.player_info[p]["resistanceBehaviour"] = 0
+            print("Resistance behaviour influence: " + str(influence) + " for player: " + str(p))
+
+        elif resistance_actions == 1:
+            influence = self.resistanceBehaviour_WEIGHT + 1
+            self.spy_probabilities[p] *= influence 
+            self.player_info[p]["resistanceBehaviour"] = 0
+            print("Resistance behaviour influence: " + str(influence) + " for player: " + str(p))
+
 
 class Agent:
     '''An abstract super class for an agent in the game The Resistance.
@@ -288,15 +310,15 @@ class my_agent(Agent):
         self.player_info = {}
 
         self.number_of_spies = self.spy_count[self.number_of_players]
-        self.number_of_resistance = self.number_of_players-self.number_of_players
+        self.number_of_resistance = self.number_of_players-self.number_of_spies
 
         self.spy_team_combinations = _all_spy_combinations(self, self.player_number, self.number_of_players, self.number_of_spies)
 
         print("AI PLAYER NUMBER IS: " + str(self.player_number))
 
-        self.assistedSpies_WEIGHT = 0.25
-        self.spyBehaviour_WEIGHT = 0.5
-        self.resistanceBehaviour_WEIGHT = 0.1
+        self.assistedSpies_WEIGHT = 0.1
+        self.spyBehaviour_WEIGHT = 0.2
+        self.resistanceBehaviour_WEIGHT = 0.05
 
         for i in range(self.number_of_players):
             if i != self.player_number:
@@ -318,7 +340,7 @@ class my_agent(Agent):
                     self.spy_probabilities.append(initial_prob)
                 # 0 for self when not a spy
                 else:
-                    self.spy_probabilities.append(0)
+                    self.spy_probabilities.append(0.0)
 
             # print('PROBABILITIES OF PLAYERS: ')
             # print(self.spy_probabilities)
@@ -464,11 +486,17 @@ class my_agent(Agent):
         # If the mission could have been successful, but was voted off, increase suspicion levels
         else:
             self.proposal_number += 1
-            
-            if collections.Counter(mission) == collections.Counter(ideal_team):
+
+            if self.round_number == 1:
+                #increase suspicion levels for people that rejected first mission
                 for player in range(self.number_of_players):
-                    if player != self.player_number and player not in votes:
-                        self.player_info[player]["spyBehaviour"] += 1 # COUNTER HERE
+                    if player not in votes and player != self.player_number:
+                        self.player_info[player]["spyBehaviour"] += 1
+            else:
+                if collections.Counter(mission) == collections.Counter(ideal_team):
+                    for player in range(self.number_of_players):
+                        if player != self.player_number and player not in votes:
+                            self.player_info[player]["spyBehaviour"] += 1 # COUNTER HERE
 
         # Other behavioural checks
         for voter in votes:
@@ -529,13 +557,21 @@ class my_agent(Agent):
         # No betrayals occurred, mission successful
         if num_fails == 0:
             for p in range(self.number_of_players):
-                # Check if player voted yes for the mission
-                if p in self.mission_votes[self.round_number][2]:
-                    self.spy_probabilities[p] -= 0 # a certain value
-                    _update_probabilities(self, mission, num_fails)
-                else: 
-                    _update_probabilities(self, mission, num_fails)
-                    self.spy_probabilities[p] += 0 # a certain value
+                if p != self.player_number:
+                    # Check if player voted yes for the mission
+                    if p in self.mission_votes[self.round_number][2] and self.round_number != 1 and p:
+                        #self.spy_probabilities[p] -= 0 # a certain value
+                        #_update_probabilities(self, mission, num_fails)
+                        self.player_info[p]["resistanceBehaviour"] += 1
+                    elif p not in self.mission_votes[self.round_number][2] and self.round_number != 1: 
+                        #_update_probabilities(self, mission, num_fails)
+                        #self.spy_probabilities[p] += 0 # a certain value
+                        self.player_info[p]["assistedSpies"] += 1
+                    else: # First round mission outcome 
+                        if p in mission or p in self.mission_votes[self.round_number][2]:
+                            self.player_info[p]["resistanceBehaviour"] += 1
+                        else:
+                            self.player_info[p]["assistedSpies"] += 1
 
         # There were betrayal(s) but mission was still successful
         # A little tricky because spies may reject due to insiffucient spies in mission
@@ -576,11 +612,16 @@ class my_agent(Agent):
             elif num_fails == len(mission):
                 for p in mission:
                     self.spy_probabilities[p] = 1.0
-                    # Might need to add a difference to other players not in mision
+                for p in range(self.number_of_players):
+                    if p in self.mission_votes[self.round_number][2] and p not in mission and p != self.player_number:
+                        self.player_info[p]["assistedSpies"] += 1 # COUNTER HERE
             
             # There were less fails than total spies, spies could have not betrayed or was not in mission
             else:
                 _update_probabilities(self, mission, num_fails)
+                for p in range(self.number_of_players):
+                    if p in self.mission_votes[self.round_number][2] and p != self.player_number:
+                        self.player_info[p]["assistedSpies"] += 1
 
     # todo: include players that voter for the mission which failed
 
