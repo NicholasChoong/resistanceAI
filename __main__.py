@@ -56,7 +56,7 @@ if __name__ == "__main__":
         # BayeBehaviourAgent(name="BayeBehaviourAgent9"),
     ]
 
-    roles_assigned = True
+    roles_assigned = False
     total_wins = 0
     number_of_games = 10000
     for _ in track(range(number_of_games), description="Playing..."):
