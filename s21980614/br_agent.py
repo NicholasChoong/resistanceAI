@@ -185,10 +185,11 @@ class BRAgent(Agent):
 
         if self.spy:
             spies_on_mission = self.get_spies_on_mission()
-            if self.failed_missions == 2 or spies_on_mission:
-                return True
+            if not spies_on_mission:
+                return False
             if spies_on_mission == len(mission):
                 return False
+            return True
         elif self.player_number not in mission:
             return False
         else:
@@ -516,66 +517,5 @@ class BRAgent(Agent):
                 console.log(f"Sus_point {player}:", pAb)
             self.sus_table[player] = pAb
 
-
-if __name__ == "__main__":
-    a = BRAgent("21980614")
-    a.new_game(7, 2, [])
-    a.players_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-    a.mission_team = [0, 1, 2, 3]
-    # a.init_sus_table(7, 2, 2)
-    # console.log(a.sus_table)
-    # a.spy_list = [1, 3, 5]
-    # console.log(a.get_spies_on_mission())
-    # console.log(list(np.random.choice(a.players_list, 5, False)))
-    # a.players_list += [7, 8, 9]
-    # console.log(a.players_list)
-    b: dict[int, float] = {0: 1.0, 1: 4.0, 2: 3.0, 3: 2.0, 4: 5.0}
-    c = {k: v for k, v in sorted(b.items(), key=lambda item: item[1])}
-    # d = dict(islice(c.items(), 3))
-    # console.log(b)
-    console.log(list(c.items()))
-    console.log(list(c.items())[0])
-    # console.log(list(d.keys()))
-    # console.log(a.players_list)
-    # console.log(a.propose_mission(2))
-    # b = list(combinations(a.mission_team, 2)
-    # )
-    mission_team = [1, 2, 3, 4, 5, 5, 5, 2, 6]
-    # spy_list = [1, 4, 6, 7]
-    # console.log(list(set(spy_list).intersection(set(mission_team))))
-    # console.log(list(set(spy_list) - set(mission_team)))
-    # console.log(list(set(mission_team) - set((1, 2, 3))))
-
-    # console.log(tuple(mission_team))
-    # z: Tuple[int, ...] = tuple(mission_team)
-    # console.log(z)
-    # n = "asdad [blue]wadaw[/blue]:"
-    # console.log(n)
-
-    # random.seed(1)
-    # np.random.seed(1)
-    # console.log(list(combinations(mission_team, 2)))
-    # console.log(np.random.choice(mission_team, 3, False))
-    g = {
-        1: 123,
-        2: 123,
-        3: 1233423234234234234234,
-        4: 12234243,
-        5: 123,
-        6: 122343,
-        7: 123,
-    }
-    res = {}
-    for key, value in sorted(g.items()):
-        res.setdefault(value, []).append(key)
-    # console.log(res.items())
-    # console.log(random.randint(0, 1))
-
-    # asdf = [0.4, 0.5, 0.6, 0.7, 0.8]
-    # product = 1.0
-    # for number in asdf:
-    #     product *= 1 - number
-    # console.log(product)
-    asd = list(np.random.choice(a.players_list, 5, False))
-    # console.log(asd)
-    # console.log([1, 2] + [2, 3])
+    def get_sus_table(self) -> dict[int, float]:
+        return self.sus_table

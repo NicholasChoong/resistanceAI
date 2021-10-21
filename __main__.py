@@ -23,11 +23,12 @@ if __name__ == "__main__":
         random.seed(SEED)
     seed = 0
     agents = [
-        BayeBehaviourAgent(name="BayeBehaviourAgent"),
-        # BRAgent(name="BRAgent1"),
-        # BRAgent(name="BRAgent2"),
-        # BRAgent(name="BRAgent3"),
-        # BRAgent(name="BRAgent4"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent"),
+        BRAgent(name="BRAgent"),
+        BRAgent(name="BRAgent1"),
+        BRAgent(name="BRAgent2"),
+        BRAgent(name="BRAgent3"),
+        BRAgent(name="BRAgent4"),
         # BRAgent(name="BRAgent5"),
         # BRAgent(name="BRAgent6"),
         # BRAgent(name="BRAgent7"),
@@ -43,12 +44,18 @@ if __name__ == "__main__":
         # StatAgent(name="StatAgent2"),
         # StatAgent(name="StatAgent3"),
         # StatAgent(name="StatAgent4"),
+        # StatAgent(name="StatAgent5"),
+        # StatAgent(name="StatAgent6"),
+        # StatAgent(name="StatAgent7"),
+        # StatAgent(name="StatAgent8"),
+        # StatAgent(name="StatAgent9")
         # ExpertAgent(name="ExpertAgent Spy"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent"),
         # BRAgent(name="BRAgent"),
-        BayeBehaviourAgent(name="BayeBehaviourAgent1"),
-        BayeBehaviourAgent(name="BayeBehaviourAgent2"),
-        BayeBehaviourAgent(name="BayeBehaviourAgent3"),
-        BayeBehaviourAgent(name="BayeBehaviourAgent4"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent1"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent2"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent3"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent4"),
         # BayeBehaviourAgent(name="BayeBehaviourAgent5"),
         # BayeBehaviourAgent(name="BayeBehaviourAgent6"),
         # BayeBehaviourAgent(name="BayeBehaviourAgent7"),
@@ -58,7 +65,7 @@ if __name__ == "__main__":
 
     roles_assigned = False
     total_wins = 0
-    number_of_games = 100
+    number_of_games = 10000
     for _ in track(range(number_of_games), description="Playing..."):
         seed = random.randrange(0, 2 ** 32 - 1)
         # console.log(seed)
@@ -79,9 +86,9 @@ if __name__ == "__main__":
             console.log()
         if game.missions_lost < 3:
             total_wins += 1
-    console.log()
+    console.log(agents[0].get_sus_table())
     console.log("######################################")
-    console.log(f"Seed: {seed}")
+    console.log(f"Seed: {seed if not SEED else SEED}")
     console.log(f"Assigned roles: {roles_assigned}")
     console.log(f"Number of players: {len(agents)}")
     console.log(f"Resistance win rate: {(total_wins/number_of_games)*100:.2f}%")
@@ -90,4 +97,4 @@ if __name__ == "__main__":
     )
     console.log(f"Total wins: {total_wins} / {number_of_games}")
     console.log("######################################")
-    # console.log(log_locals=True)
+    console.log(log_locals=True)
