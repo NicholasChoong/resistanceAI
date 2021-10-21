@@ -117,27 +117,33 @@ class BayeBehaviourAgent(Agent):
                     team.append(random_spy)
                     ref_list.remove(random_spy)
 
-            team = self._choose_team(team, team_size, self.spy, self.confirm_resistance, self.confirm_spies)
+            team = self._choose_team(
+                team, team_size, self.spy, self.confirm_resistance, self.confirm_spies
+            )
 
         elif self.spy:
             team.append(self.player_number)
-            team = self._choose_team(team, team_size, self.spy, self.confirm_resistance, self.confirm_spies)
+            team = self._choose_team(
+                team, team_size, self.spy, self.confirm_resistance, self.confirm_spies
+            )
 
         elif not self.spy and self.round_number == 1:
             team.append(self.player_number)
-            ref_list = [] 
-            
+            ref_list = []
+
             for p in range(self.number_of_players):
                 if p != self.player_number:
                     ref_list.append(p)
-            
+
             while len(team) < team_size:
                 random_agent = random.choice(ref_list)
                 team.append(random_agent)
                 ref_list.remove(random_agent)
 
         else:
-            team = self._choose_team(team, team_size, self.spy, self.confirm_resistance, self.confirm_spies)
+            team = self._choose_team(
+                team, team_size, self.spy, self.confirm_resistance, self.confirm_spies
+            )
 
         return team
 
@@ -200,7 +206,9 @@ class BayeBehaviourAgent(Agent):
         success = bool(len(votes) > required_votes)
         mission_size = self.mission_sizes[self.number_of_players][self.round_number - 1]
 
-        ideal_team = self._choose_team([], mission_size, self.spy, self.confirm_resistance, self.confirm_spies)
+        ideal_team = self._choose_team(
+            [], mission_size, self.spy, self.confirm_resistance, self.confirm_spies
+        )
 
         # If mission was voted for, add it into the array
         if success:
@@ -405,9 +413,9 @@ class BayeBehaviourAgent(Agent):
         spies_win, True iff the spies caused 3+ missions to fail
         spies, a list of the player indexes for the spies.
         """
-        self._get_sus_players()
+        # self.get_sus_table
 
-    def _get_sus_players(self):
+    def get_sus_table(self):
         sus_players = {}
 
         for player in range(self.number_of_players):
