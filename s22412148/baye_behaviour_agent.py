@@ -104,7 +104,7 @@ class BayeBehaviourAgent(Agent):
     def propose_mission(self, team_size, betrayals_required=1):
         team = []
 
-        if self.spy == True and self.betrays_required > 1:
+        if self.spy and self.betrays_required > 1:
             team.append(self.player_number)
             ref_list = self.other_spies.copy()
 
@@ -116,7 +116,7 @@ class BayeBehaviourAgent(Agent):
 
             team = self._choose_team(team, team_size, self.spy)
 
-        elif self.spy == True:
+        elif self.spy:
             team.append(self.player_number)
             team = self._choose_team(team, team_size, self.spy)
 
@@ -132,7 +132,7 @@ class BayeBehaviourAgent(Agent):
             return True
 
         # team leader or member has high proabability of being a spy then vote no
-        if self.spy == True:
+        if self.spy:
             # Find the number spies within the mission
             spies_in_mission = self._spies_in_mission(mission, self.all_spies)
 
@@ -155,7 +155,7 @@ class BayeBehaviourAgent(Agent):
             # print("Sorted probability list is: " + str(sortedProb))
 
             # Always reject if one more mission left for spies to win, but resistance agent not in mission
-            if self.fails_occurred >= 2 and self.player_number not in mission:
+            if self.current_fails >= 2 and self.player_number not in mission:
                 return False
 
             for i in range(len(mission)):
@@ -456,7 +456,7 @@ class BayeBehaviourAgent(Agent):
 
             pB += pBk
 
-        if pB == 0.0:
+        if not pB:
             return 1.0
 
         return pB
@@ -469,7 +469,7 @@ class BayeBehaviourAgent(Agent):
         """
 
     def _baye_calculation(self, pA, pB, pBa):
-        if pB == 0.0 or pB == 0:
+        if not pB:
             return pB
         else:
             result = (pBa * pA) / pB
