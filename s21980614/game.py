@@ -28,18 +28,17 @@ class Game:
             raise Exception("Agent array out of range")
         # clone and shuffle agent array
         self.agents = agents.copy()
-        random.shuffle(self.agents)
         self.num_players = len(agents)
         # allocate spies
         self.spies = []
         if not roles_assigned:
+            random.shuffle(self.agents)
             while len(self.spies) < Agent.spy_count[self.num_players]:
                 spy = random.randrange(self.num_players)
                 if spy not in self.spies:
                     self.spies.append(spy)
         else:
             self.spies = list(range(self.num_players))[3:5]
-            console.log(self.spies)
         # start game for each agent
         for agent_id in range(self.num_players):
             spy_list = self.spies.copy() if agent_id in self.spies else []
