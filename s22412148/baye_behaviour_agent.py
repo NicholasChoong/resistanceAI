@@ -405,7 +405,15 @@ class BayeBehaviourAgent(Agent):
         spies_win, True iff the spies caused 3+ missions to fail
         spies, a list of the player indexes for the spies.
         """
-        pass
+        self._get_sus_players()
+
+    def _get_sus_players(self):
+        sus_players = {}
+
+        for player in range(self.number_of_players):
+            sus_player[player] = self.spy_rating[player]
+
+        return sus_players
 
     # Pick people with lowest probability of being a spy
     def _choose_team(self, current_team, team_size, is_spy, include, exclude):
