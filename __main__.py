@@ -16,7 +16,7 @@ install(show_locals=True)
 console = Console()
 
 SEED = 0
-DEBUG = False
+DEBUG = True
 
 if __name__ == "__main__":
     seed = 0
@@ -30,16 +30,18 @@ if __name__ == "__main__":
 
     agents = [
         BRAgent(name="BRAgent"),
+        # BRAgent(name="BRAgent1"),
         BayeBehaviourAgent(name="BayeBehaviourAgent"),
         ExpertAgent(name="ExpertAgent 1"),
         ExpertAgent(name="ExpertAgent 2"),
         StatAgent(name="StatAgent"),
     ]
 
+    roles_assigned = True
     total_wins = 0
-    number_of_games = 10000
+    number_of_games = 1
     for _ in track(range(number_of_games), description="Playing..."):
-        game = Game(agents)
+        game = Game(agents, roles_assigned)
         game.play()
         if DEBUG:
             console.log("Seed: ", seed)
