@@ -411,7 +411,7 @@ class BayeBehaviourAgent(Agent):
         sus_players = {}
 
         for player in range(self.number_of_players):
-            sus_player[player] = self.spy_rating[player]
+            sus_players[player] = self.spy_rating[player]
 
         return sus_players
 
