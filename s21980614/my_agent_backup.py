@@ -92,9 +92,7 @@ class MyAgent(Agent):
         """
         return False
 
-    def vote_outcome(
-        self, mission: list[int], leader: int, votes: dict[int, bool]
-    ) -> None:
+    def vote_outcome(self, mission: list[int], leader: int, votes: list[int]) -> None:
         """
         The method is called on an agent to inform them of the outcome of a vote,
         and which agent voted for or against the mission.
@@ -105,7 +103,7 @@ class MyAgent(Agent):
             leader (int):
                 The index of the player who proposed the mission
                 between 0 and number_of_players.
-            votes (dict[int, bool]):
+            votes (list[int]):
                 A dictionary mapping player indexes to Booleans.
                 True if they voted for the mission, False otherwise.
         """

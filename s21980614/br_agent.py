@@ -100,39 +100,37 @@ class BRAgent(Agent):
         """
         team_mission = []
         if self.spy:
+            # Choose the members of the resistance first
             team_mission = list(
                 np.random.choice(
                     self.resistance_list, team_size - betrayals_required, False
                 )
             )
+            # Choose itself as it is the leader
             team_mission.append(self.player_number)
             filtered_spy_list = self.spy_list[:]
             filtered_spy_list.remove(self.player_number)
+            # Choose more spies to sabotage mission
             if betrayals_required > 1:
                 more_spies = list(
                     np.random.choice(filtered_spy_list, betrayals_required - 1, False)
                 )
                 team_mission += more_spies
-            if len(set(team_mission)) != team_size:
-                console.log(team_mission)
-                console.log()
-                raise Exception(f"Invalid team 1st: {team_mission}")
         elif self.total_mission == 0:
+            # First round, randomly choose players and then itself
             filtered_players_list = self.players_list[:]
             filtered_players_list.remove(self.player_number)
             team_mission = list(
                 np.random.choice(filtered_players_list, team_size - 1, False)
             )
             team_mission.append(self.player_number)
-            if len(set(team_mission)) != team_size:
-                console.log(team_mission)
-                console.log()
-                raise Exception(f"Invalid team 2nd: {team_mission}")
         else:
+            # Choose players from sus table
             sorted_sus_table = {
                 k: v
                 for k, v in sorted(self.sus_table.items(), key=lambda item: item[1])
             }
+            # Group the players by their sus points
             grouped_by_values = {}
             for key, value in sorted_sus_table.items():
                 grouped_by_values.setdefault(value, []).append(key)
@@ -155,10 +153,6 @@ class BRAgent(Agent):
             if self.player_number not in team_mission:
                 random_index = random.randint(0, team_size - 1)
                 team_mission[random_index] = self.player_number
-            if len(set(team_mission)) != team_size:
-                console.log(team_mission)
-                console.log()
-                raise Exception(f"Invalid team 3rd: {team_mission}")
         return team_mission
 
     def vote(self, mission: list[int], leader: int) -> bool:
