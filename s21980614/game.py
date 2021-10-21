@@ -24,6 +24,7 @@ class Game:
         - calling the new_game method on all agents
         - build a scoreboard and data structures
         """
+        a = Agent(name="Placeholder")
         if len(agents) < 5 or len(agents) > 10:
             raise Exception("Agent array out of range")
         # clone and shuffle agent array
@@ -38,7 +39,9 @@ class Game:
                 if spy not in self.spies:
                     self.spies.append(spy)
         else:
-            self.spies = list(range(self.num_players))[3:5]
+            self.spies = list(range(self.num_players))[
+                1 : 1 + a.spy_count[self.num_players]
+            ]
         # start game for each agent
         for agent_id in range(self.num_players):
             spy_list = self.spies.copy() if agent_id in self.spies else []
