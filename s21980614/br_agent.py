@@ -529,11 +529,12 @@ if __name__ == "__main__":
     # console.log(list(np.random.choice(a.players_list, 5, False)))
     # a.players_list += [7, 8, 9]
     # console.log(a.players_list)
-    # b: dict[int, float] = {0: 1.0, 1: 4.0, 2: 3.0, 3: 2.0, 4: 5.0}
-    # c = {k: v for k, v in sorted(b.items(), key=lambda item: item[1])}
+    b: dict[int, float] = {0: 1.0, 1: 4.0, 2: 3.0, 3: 2.0, 4: 5.0}
+    c = {k: v for k, v in sorted(b.items(), key=lambda item: item[1])}
     # d = dict(islice(c.items(), 3))
     # console.log(b)
-    # console.log(c)
+    console.log(list(c.items()))
+    console.log(list(c.items())[0])
     # console.log(list(d.keys()))
     # console.log(a.players_list)
     # console.log(a.propose_mission(2))
@@ -568,7 +569,7 @@ if __name__ == "__main__":
     for key, value in sorted(g.items()):
         res.setdefault(value, []).append(key)
     # console.log(res.items())
-    console.log(random.randint(0, 1))
+    # console.log(random.randint(0, 1))
 
     # asdf = [0.4, 0.5, 0.6, 0.7, 0.8]
     # product = 1.0
@@ -576,5 +577,5 @@ if __name__ == "__main__":
     #     product *= 1 - number
     # console.log(product)
     asd = list(np.random.choice(a.players_list, 5, False))
-    console.log(asd)
-    console.log([1, 2] + [2, 3])
+    # console.log(asd)
+    # console.log([1, 2] + [2, 3])

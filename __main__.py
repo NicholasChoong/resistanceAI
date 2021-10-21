@@ -2,10 +2,13 @@ import random
 import numpy as np
 from rich.console import Console
 from rich.traceback import install
+from rich.progress import track
 
+from s21980614.game import Game
 from s21980614.random_agent import RandomAgent
 from s21980614.br_agent import BRAgent
-from s21980614.game import Game
+from s21980614.learners import StatAgent
+from s21980614.experts import ExpertAgent
 
 install(show_locals=True)
 
@@ -39,21 +42,36 @@ if __name__ == "__main__":
         # RandomAgent(name="r5"),
         # RandomAgent(name="r6"),
         # RandomAgent(name="r7"),
-        BRAgent(name="1"),
-        BRAgent(name="2"),
-        BRAgent(name="3"),
-        BRAgent(name="4"),
-        BRAgent(name="5"),
+        # BRAgent(name="1"),
+        # BRAgent(name="2"),
+        # BRAgent(name="3"),
+        # BRAgent(name="4"),
+        # BRAgent(name="5"),
         # BRAgent(name="6"),
         # BRAgent(name="7"),
         # BRAgent(name="8"),
         # BRAgent(name="9"),
         # BRAgent(name="10"),
+        # StatAgent(name="1"),
+        # StatAgent(name="2"),
+        # StatAgent(name="3"),
+        # StatAgent(name="4"),
+        # StatAgent(name="5"),
+        # StatAgent(name="6"),
+        # StatAgent(name="7"),
+        # StatAgent(name="8"),
+        # StatAgent(name="9"),
+        # StatAgent(name="10"),
+        ExpertAgent(name="1"),
+        ExpertAgent(name="2"),
+        ExpertAgent(name="3"),
+        ExpertAgent(name="4"),
+        ExpertAgent(name="5"),
     ]
 
     total_wins = 0
     number_of_games = 1000
-    for _ in range(number_of_games):
+    for _ in track(range(number_of_games), description="Playing..."):
         game = Game(agents)
         game.play()
         if DEBUG:
