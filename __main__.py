@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     roles_assigned = False
     total_wins = 0
-    number_of_games = 10000
+    number_of_games = 10
     for _ in track(range(number_of_games), description="Playing..."):
         seed = random.randrange(0, 2 ** 32 - 1)
         # console.log(seed)
