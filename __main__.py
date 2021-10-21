@@ -15,20 +15,24 @@ install(show_locals=True)
 
 console = Console()
 
-SEED = 0
+SEED = 1
 LOG = False
 
 if __name__ == "__main__":
+    if SEED:
+        random.seed(SEED)
     seed = 0
-    # seed = SEED or random.randrange(0, 2 ** 32 - 1)
-    # random.seed(seed)
-    # np.random.seed(seed)
     agents = [
         BayeBehaviourAgent(name="BayeBehaviourAgent"),
         # BRAgent(name="BRAgent1"),
         # BRAgent(name="BRAgent2"),
         # BRAgent(name="BRAgent3"),
         # BRAgent(name="BRAgent4"),
+        # BRAgent(name="BRAgent5"),
+        # BRAgent(name="BRAgent6"),
+        # BRAgent(name="BRAgent7"),
+        # BRAgent(name="BRAgent8"),
+        # BRAgent(name="BRAgent9"),
         # ExpertAgent(name="ExpertAgent Res"),
         # ExpertAgent(name="ExpertAgent Res1"),
         # ExpertAgent(name="ExpertAgent Res2"),
@@ -45,12 +49,21 @@ if __name__ == "__main__":
         BayeBehaviourAgent(name="BayeBehaviourAgent2"),
         BayeBehaviourAgent(name="BayeBehaviourAgent3"),
         BayeBehaviourAgent(name="BayeBehaviourAgent4"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent5"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent6"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent7"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent8"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent9"),
     ]
 
-    roles_assigned = False
+    roles_assigned = True
     total_wins = 0
-    number_of_games = 10
+    number_of_games = 10000
     for _ in track(range(number_of_games), description="Playing..."):
+        seed = random.randrange(0, 2 ** 32 - 1)
+        # console.log(seed)
+        random.seed(seed)
+        np.random.seed(seed)
         game = Game(agents, roles_assigned)
         # game = Game(agents)
         game.play()
@@ -69,6 +82,7 @@ if __name__ == "__main__":
     console.log()
     console.log("######################################")
     console.log(f"Seed: {seed}")
+    console.log(f"Assigned roles: {roles_assigned}")
     console.log(f"Number of players: {len(agents)}")
     console.log(f"Resistance win rate: {(total_wins/number_of_games)*100:.2f}%")
     console.log(
