@@ -7,6 +7,7 @@ from rich.traceback import install
 console = Console()
 install(show_locals=True)
 
+LOG = False
 
 def permutations(config):
     """Returns unique elements from a list of permutations."""
@@ -243,8 +244,13 @@ class ExpertAgent(Agent):
             spies (list[int]):
                 A list of the player indexes for the spies.
         """
-
-        pass
+        sorted_dict = {
+            k: v
+            for k, v in sorted(self.invalidations.items(), key=lambda item: item[1])
+        }
+        if LOG and not self.spy:
+            console.log(list(sorted_dict.items())[-1])
+            console.log(spies)
 
     def oracle_selection(self, config):
         """Rate teams chosen by the leader, assuming a particular configuration.
