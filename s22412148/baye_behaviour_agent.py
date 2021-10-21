@@ -3,7 +3,7 @@ import math, random
 from itertools import combinations
 import collections
 
-class my_agent(Agent):
+class baye_behaviour_agent(Agent):
     def __init__(self, name='22412148'):
         self.name = name
 
