@@ -1,6 +1,6 @@
 from rich.console import Console
 from rich.traceback import install
-from agent import Agent
+from .agent import Agent
 from typing import Tuple
 import numpy as np
 from itertools import combinations, islice
