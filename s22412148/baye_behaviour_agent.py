@@ -3,7 +3,7 @@ import math, random
 from itertools import combinations
 import collections
 
-
+# add confirm spy and resistance list ()
 class BayeBehaviourAgent(Agent):
     def __init__(self, name="22412148"):
         self.name = name
@@ -15,6 +15,9 @@ class BayeBehaviourAgent(Agent):
         self.other_spies = []
         self.spy_rating = []
         self.spy = False
+
+        self.confirm_spies = []
+        self.confirm_resistance = []
 
         self.player_info = {}
 
@@ -114,11 +117,11 @@ class BayeBehaviourAgent(Agent):
                     team.append(random_spy)
                     ref_list.remove(random_spy)
 
-            team = self._choose_team(team, team_size, self.spy)
+            team = self._choose_team(team, team_size, self.spy, self.confirm_resistance, self.confirm_spies)
 
         elif self.spy:
             team.append(self.player_number)
-            team = self._choose_team(team, team_size, self.spy)
+            team = self._choose_team(team, team_size, self.spy, self.confirm_resistance, self.confirm_spies)
 
         elif not self.spy and self.round_number == 1:
             team.append(self.player_number)
@@ -134,7 +137,7 @@ class BayeBehaviourAgent(Agent):
                 ref_list.remove(random_agent)
 
         else:
-            team = self._choose_team(team, team_size, self.spy)
+            team = self._choose_team(team, team_size, self.spy, self.confirm_resistance, self.confirm_spies)
 
         return team
 
@@ -166,6 +169,16 @@ class BayeBehaviourAgent(Agent):
             idealRating = 0.0
             missionRating = 0.0
             # print("Sorted probability list is: " + str(sortedProb))
+            if proposer in self.confirm_spies:
+                return False
+
+            for p in mission:
+                if p in self.confirm_spies:
+                    return False
+
+            for p in self.confirm_resistance:
+                if p not in mission:
+                    return False
 
             # Always reject if one more mission left for spies to win, but resistance agent not in mission
             if self.current_fails >= 2 and self.player_number not in mission:
@@ -187,7 +200,7 @@ class BayeBehaviourAgent(Agent):
         success = bool(len(votes) > required_votes)
         mission_size = self.mission_sizes[self.number_of_players][self.round_number - 1]
 
-        ideal_team = self._choose_team([], mission_size, self.spy)
+        ideal_team = self._choose_team([], mission_size, self.spy, self.confirm_resistance, self.confirm_spies)
 
         # If mission was voted for, add it into the array
         if success:
@@ -324,15 +337,16 @@ class BayeBehaviourAgent(Agent):
         else:
             # All players that were not in the mission are clear when number of fails = number of spies
             if num_fails == self.spy_count[self.number_of_players]:
-                remainProb = 0.0
+                remainRating = 0.0
 
                 for p in range(self.number_of_players):
                     if p not in mission and p != self.player_number:
-                        remainProb += self.spy_rating[p]
-                        self.spy_rating[p] = 0
+                        remainRating += self.spy_rating[p]
+                        self.spy_rating[p] = 0.0
+                        self.confirm_resistance.append(p)
 
                 for p in range(self.number_of_players):
-                    addProb = float(remainProb / len(mission))
+                    addProb = float(remainRating / len(mission))
                     if (
                         p in mission
                         and self.spy_rating[p] > 0
@@ -342,7 +356,8 @@ class BayeBehaviourAgent(Agent):
 
             elif num_fails == len(mission):
                 for p in mission:
-                    self.spy_rating[p] = 1.0
+                    self.spy_rating[p] += 1000.0
+                    self.confirm_spies.append(p)
                 for p in range(self.number_of_players):
                     if (
                         p in self.mission_votes[self.round_number][2]
@@ -393,9 +408,14 @@ class BayeBehaviourAgent(Agent):
         pass
 
     # Pick people with lowest probability of being a spy
-    def _choose_team(self, current_team, team_size, is_spy):
+    def _choose_team(self, current_team, team_size, is_spy, include, exclude):
         team = current_team.copy()
         # print("CURRENT TEAM: " + str(team))
+
+        if include:
+            for p in include:
+                if p not in team and len(team) < team_size:
+                    team.append(p)
 
         if not is_spy:
             while len(team) < team_size:
@@ -407,7 +427,7 @@ class BayeBehaviourAgent(Agent):
                 index = 0
 
                 for prob in self.spy_rating:
-                    if prob < ref and index not in team:
+                    if prob < ref and index not in team and index not in exclude:
                         ref = prob
                         player = index
 
