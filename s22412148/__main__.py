@@ -1,21 +1,21 @@
 from random_agent import RandomAgent
-from custom_agent import my_agent
+from custom_agent import BayeBehaviourAgent
 from game import Game
 
-agents = [my_agent(name='r1'), 
-        my_agent(name='r2'),  
-        my_agent(name='r3'),  
-        my_agent(name='r4'),  
-        my_agent(name='r5'),  
-        my_agent(name='r6'),  
-        my_agent(name='r7'),
-        my_agent(name='r8'),
-        #my_agent(name='r9'),
-        #my_agent(name='r10')
+agents = [BayeBehaviourAgent(name='r1'), 
+        BayeBehaviourAgent(name='r2'),  
+        BayeBehaviourAgent(name='r3'),  
+        BayeBehaviourAgent(name='r4'),  
+        BayeBehaviourAgent(name='r5'),  
+        BayeBehaviourAgent(name='r6'),  
+        BayeBehaviourAgent(name='r7'),
+        BayeBehaviourAgent(name='r8'),
+        BayeBehaviourAgent(name='r9'),
+        BayeBehaviourAgent(name='r10')
         ]
 
 total_wins = 0
-number_of_games = 1000
+number_of_games = 10000
 
 for i in range(number_of_games):
         game = Game(agents)
