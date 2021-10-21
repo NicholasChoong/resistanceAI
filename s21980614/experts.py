@@ -1,4 +1,4 @@
-from agent import Agent
+from .agent import Agent
 import itertools
 import random
 from rich.console import Console
@@ -13,7 +13,7 @@ def permutations(config):
     return list(set(itertools.permutations(config)))
 
 
-class MyAgent(Agent):
+class ExpertAgent(Agent):
     """
     new_game and *_outcome methods simply inform agents of events that have occured,
     while propose_mission, vote, and betray require the agent to commit some action.
@@ -55,10 +55,13 @@ class MyAgent(Agent):
         self.player_number: int = player_number
         self.spies: list[int] = spy_list
         self.spy = bool(spy_list)
-        self.players_list: list[int] = list(range(number_of_players))
+        self.players: list[int] = list(range(number_of_players))
         self.spies_num: int = self.spy_count[number_of_players]
+        self.number_of_rounds_on_mission: int = 0
         self.total_mission: int = 0
         self.failed_missions: int = 0
+        self.successful_missions: int = 0
+
         self.team: list[int] = []
         self.leader: int = -1
 
@@ -66,6 +69,9 @@ class MyAgent(Agent):
         self.invalidations = {k: 0.0 for k in permutations([True, True, False, False])}
         # This is used to help justify decisions in hybrid human/bot matches.
         self.factors = {k: [] for k in permutations([True, True, False, False])}
+
+    if __name__ == "__main__":
+        console.log(permutations([True, True, False, False]))
 
     def is_spy(self):
         """
@@ -90,7 +96,9 @@ class MyAgent(Agent):
         """
         likely = self.likeliest()
         config = random.choice(likely)
-        return [self.player_number] + random.sample(self.getResistance(config), team_size - 1)
+        return [self.player_number] + random.sample(
+            self.getResistance(config), team_size - 1
+        )
 
     def vote(self, mission: list[int], leader: int) -> bool:
         """
@@ -109,11 +117,13 @@ class MyAgent(Agent):
                 True if the vote is for the mission, and
                 False if the vote is against the mission.
         """
+        self.team = mission
+        self.leader = leader
         advice = self.adviser_vote(mission)
         if advice:
             return advice
 
-        # Count the scores of configurations where no spies are selected. 
+        # Count the scores of configurations where no spies are selected.
         scores, matches = [], []
         for config in self.invalidations:
             if len([s for s in mission if s in self.getSpies(config)]) == 0:
@@ -141,6 +151,7 @@ class MyAgent(Agent):
                 A dictionary mapping player indexes to Booleans.
                 True if they voted for the mission, False otherwise.
         """
+        self.number_of_rounds_on_mission += 1
         self.team = mission
         self.leader = leader
         for config in self.invalidations:
@@ -164,20 +175,20 @@ class MyAgent(Agent):
             bool:
                 True if this agent chooses to betray the mission, False otherwise.
         """
-        if self.game.wins == 2 or self.game.losses == 2:
-            self.log.debug("Sabotaging since there's a chance of winning or losing.")
+        if self.successful_missions == 2 or self.failed_missions == 2:
+            # self.log.debug("Sabotaging since there's a chance of winning or losing.")
             return True
 
-        if len(self.game.team) == 2 and self.game.turn == 1:
-            self.log.debug("Missions of size two are too risky...")
+        if len(self.team) == 2:
+            # self.log.debug("Missions of size two are too risky...")
             return False
 
-        spies = [s for s in self.game.team if s in self.spies]
+        spies = [s for s in self.team if s in self.spies]
         if len(spies) > 1:
-            self.log.debug("Too many spies, can't coordinate!")
+            # self.log.debug("Too many spies, can't coordinate!")
             return False
 
-        self.log.debug("Other checks failed, why not sabotage since I'm a spy?")
+        # self.log.debug("Other checks failed, why not sabotage since I'm a spy?")
         return True
 
     def mission_outcome(
@@ -199,6 +210,9 @@ class MyAgent(Agent):
                 True if there were not enough betrayals to cause the mission
                 to fail, False otherwise.
         """
+        if mission_success:
+            self.successful_missions += 1
+        sabotaged = 0 if mission_success else 1
         for config in self.invalidations:
             score, factors = self.oracle_sabotages(config, sabotaged)
             self.invalidations[config] += score
@@ -214,6 +228,7 @@ class MyAgent(Agent):
             missions_failed (int):
                 The number of missions (0-3) that have failed.
         """
+        self.number_of_rounds_on_mission = 0
         self.total_mission = rounds_complete
         self.failed_missions = missions_failed
 
@@ -283,27 +298,21 @@ class MyAgent(Agent):
                         % (p),
                     )
                 )
-            if self.game.tries == 5 and p not in all_spies and not v:
+            if self.number_of_rounds_on_mission == 5 and p not in all_spies and not v:
                 score += 2.0
                 factors.append(
                     (
                         2.0,
-                        "%s, assuming resistance, did not approve the final try!"
-                        % (p),
+                        "%s, assuming resistance, did not approve the final try!" % (p),
                     )
                 )
-            if (
-                p not in all_spies
-                and len(self.team) == 3
-                and p not in self.team
-                and v
-            ):
+            if p not in all_spies and len(self.team) == 3 and p not in self.team and v:
                 score += 2.0
                 factors.append(
                     (
                         2.0,
                         "%s, assuming a resistance, voted for a mission without self!"
-                        % (p.name),
+                        % (p),
                     )
                 )
         return score, factors
@@ -316,7 +325,7 @@ class MyAgent(Agent):
                 (
                     score,
                     "%s participated in a mission that had %i sabotages."
-                    % (self..team, sabotaged),
+                    % (self.team, sabotaged),
                 )
             ]
         else:
@@ -325,21 +334,23 @@ class MyAgent(Agent):
     def adviser_vote(self, team):
         if self.spy:
             spies = [s for s in team if s in self.spies]
-            if len(spies) > 0 and (self.game.losses == 2 or self.game.wins == 2):
-                self.log.debug("Taking a risk since the game could finish.")
+            if len(spies) > 0 and (
+                self.failed_missions == 2 or self.successful_missions == 2
+            ):
+                # self.log.debug("Taking a risk since the game could finish.")
                 return True
-            if self.game.tries == 5:
-                self.log.debug("Voting up the last mission because Resistance would.")
+            if self.number_of_rounds_on_mission == 5:
+                # self.log.debug("Voting up the last mission because Resistance would.")
                 return False
             if len(team) == 3:
-                self.log.debug("Voting strongly about this team because it's size 3!")
+                # self.log.debug("Voting strongly about this team because it's size 3!")
                 return self in team
         else:
-            if self.game.leader == self:
-                self.log.debug("Approving my own mission selection.")
+            if self.leader == self:
+                # self.log.debug("Approving my own mission selection.")
                 return True
-            if self.game.tries == 5:
-                self.log.debug("Voting up the last mission to avoid failure.")
+            if self.number_of_rounds_on_mission == 5:
+                # self.log.debug("Voting up the last mission to avoid failure.")
                 return True
         return None
 
@@ -357,3 +368,7 @@ class MyAgent(Agent):
         assert len(config) == 4
         assert all([type(c) is bool for c in config])
         return set([player for player, spy in zip(self.others(), config) if not spy])
+
+    def others(self):
+        """Helper function to list players in the game that are not your bot."""
+        return [p for p in self.players if p != self.player_number]
