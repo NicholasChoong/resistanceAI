@@ -289,13 +289,13 @@ class BayeBehaviourAgent(Agent):
 
         # If there are more than enough spies on the mission to fail it, betray with probability
         if spy_num > self.betrays_required:
-            idealRating = 0.80  # Must be at least 80% confident that other spies will betray to not betray
+            minConfidence = 0.80  # Must be at least 80% confident that other spies will betray to not betray
 
-            missionRating = (
+            estimateConfidence = (
                 float(spy_num / self.betrays_required) * 0.70
             )  # Assuming spies will betray 70% of the time
 
-            return [False if missionRating > idealRating else True]
+            return [False if estimateConfidence > minConfidence else True]
 
         return True
 
