@@ -10,8 +10,8 @@ agents = [BayeBehaviourAgent(name='r1'),
         BayeBehaviourAgent(name='r6'),  
         BayeBehaviourAgent(name='r7'),
         BayeBehaviourAgent(name='r8'),
-        #BayeBehaviourAgent(name='r9'),
-        #BayeBehaviourAgent(name='r10')
+        BayeBehaviourAgent(name='r9'),
+        BayeBehaviourAgent(name='r10')
         ]
 
 total_wins = 0
