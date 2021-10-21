@@ -16,7 +16,7 @@ install(show_locals=True)
 console = Console()
 
 SEED = 0
-DEBUG = True
+LOG = False
 
 if __name__ == "__main__":
     seed = 0
@@ -29,21 +29,36 @@ if __name__ == "__main__":
         np.random.seed(seed)
 
     agents = [
-        BRAgent(name="BRAgent"),
-        # BRAgent(name="BRAgent1"),
         BayeBehaviourAgent(name="BayeBehaviourAgent"),
-        ExpertAgent(name="ExpertAgent 1"),
-        ExpertAgent(name="ExpertAgent 2"),
-        StatAgent(name="StatAgent"),
+        # BRAgent(name="BRAgent1"),
+        # BRAgent(name="BRAgent2"),
+        # BRAgent(name="BRAgent3"),
+        # BRAgent(name="BRAgent4"),
+        # ExpertAgent(name="ExpertAgent Res"),
+        # ExpertAgent(name="ExpertAgent Res1"),
+        # ExpertAgent(name="ExpertAgent Res2"),
+        # ExpertAgent(name="ExpertAgent Res3"),
+        # ExpertAgent(name="ExpertAgent Res4"),
+        # StatAgent(name="StatAgent"),
+        # StatAgent(name="StatAgent1"),
+        # StatAgent(name="StatAgent2"),
+        # StatAgent(name="StatAgent3"),
+        # StatAgent(name="StatAgent4"),
+        # ExpertAgent(name="ExpertAgent Spy"),
+        # BRAgent(name="BRAgent"),
+        BayeBehaviourAgent(name="BayeBehaviourAgent1"),
+        BayeBehaviourAgent(name="BayeBehaviourAgent2"),
+        BayeBehaviourAgent(name="BayeBehaviourAgent3"),
+        BayeBehaviourAgent(name="BayeBehaviourAgent4"),
     ]
 
     roles_assigned = True
     total_wins = 0
-    number_of_games = 1
+    number_of_games = 10000
     for _ in track(range(number_of_games), description="Playing..."):
         game = Game(agents, roles_assigned)
         game.play()
-        if DEBUG:
+        if LOG:
             console.log("Seed: ", seed)
             # console.log(game)
             console.log(game.__str__())
@@ -51,6 +66,10 @@ if __name__ == "__main__":
             # console.print(game.__str__())
         if game.missions_lost < 3:
             total_wins += 1
+    console.log(f"Seed: {seed}")
     console.log(f"Number of players: {len(agents)}")
-    console.log(f"Win rate: {(total_wins/number_of_games)*100:.1f}%")
+    console.log(f"Resistance win rate: {(total_wins/number_of_games)*100:.2f}%")
+    console.log(
+        f"Spy win rate: {((number_of_games - total_wins)/number_of_games)*100:.2f}%"
+    )
     console.log(f"Total wins: {total_wins} / {number_of_games}", log_locals=True)
