@@ -139,6 +139,12 @@ class StatAgent(Agent):
         self.selections: list[tuple[int, list[int]]] = []
         self.votes: list[tuple[list[int], list[int]]] = []
 
+    def is_spy(self):
+        """
+        returns True iff the agent is a spy
+        """
+        return self.player_number in self.spies
+
     def propose_mission(self, team_size: int, fails_required: int = 1) -> list[int]:
         """
         This method is called when the agent is required to lead (propose) a mission.
