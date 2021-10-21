@@ -1,6 +1,6 @@
 from rich.console import Console
 from rich.traceback import install
-from .agent import Agent
+from agent import Agent
 from typing import Tuple
 import numpy as np
 from itertools import combinations, islice
@@ -77,12 +77,6 @@ class BRAgent(Agent):
 
         self.init_sus_table(number_of_players, player_number, self.number_of_spies)
 
-    def is_spy(self):
-        """
-        returns True iff the agent is a spy
-        """
-        return self.player_number in self.spy_list
-
     def propose_mission(self, team_size: int, betrayals_required: int = 1) -> list[int]:
         """
         This method is called when the agent is required to lead (propose) a mission.
@@ -100,41 +94,42 @@ class BRAgent(Agent):
         """
         team_mission = []
         if self.spy:
-            # Choose the members of the resistance first
             team_mission = list(
                 np.random.choice(
                     self.resistance_list, team_size - betrayals_required, False
                 )
             )
-            # Choose itself as it is the leader
             team_mission.append(self.player_number)
             filtered_spy_list = self.spy_list[:]
             filtered_spy_list.remove(self.player_number)
-            # Choose more spies to sabotage mission
             if betrayals_required > 1:
                 more_spies = list(
                     np.random.choice(filtered_spy_list, betrayals_required - 1, False)
                 )
                 team_mission += more_spies
+            if len(set(team_mission)) != team_size:
+                console.log(team_mission)
+                console.log()
+                raise Exception(f"Invalid team 1st: {team_mission}")
         elif self.total_mission == 0:
-            # First round, randomly choose players and then itself
             filtered_players_list = self.players_list[:]
             filtered_players_list.remove(self.player_number)
             team_mission = list(
                 np.random.choice(filtered_players_list, team_size - 1, False)
             )
             team_mission.append(self.player_number)
+            if len(set(team_mission)) != team_size:
+                console.log(team_mission)
+                console.log()
+                raise Exception(f"Invalid team 2nd: {team_mission}")
         else:
-            # Choose players from sus table
             sorted_sus_table = {
                 k: v
                 for k, v in sorted(self.sus_table.items(), key=lambda item: item[1])
             }
-            # Group the players by their sus points
             grouped_by_values = {}
             for key, value in sorted_sus_table.items():
                 grouped_by_values.setdefault(value, []).append(key)
-            # Choose the players based on their sus points.
             for _, player_group in grouped_by_values.items():
                 if len(team_mission) == team_size:
                     break
@@ -151,10 +146,13 @@ class BRAgent(Agent):
                     team_mission = list(
                         np.random.choice(player_group, team_size, False)
                     )
-            # Checks if itself is in the team
             if self.player_number not in team_mission:
                 random_index = random.randint(0, team_size - 1)
                 team_mission[random_index] = self.player_number
+            if len(set(team_mission)) != team_size:
+                console.log(team_mission)
+                console.log()
+                raise Exception(f"Invalid team 3rd: {team_mission}")
         return team_mission
 
     def vote(self, mission: list[int], leader: int) -> bool:
@@ -178,26 +176,22 @@ class BRAgent(Agent):
         self.mission_team = mission
         self.sitting_out_team = list(set(self.players_list) - set(mission))
 
-        # Last voting round, so it must be a success
         if self.number_of_rounds_on_mission == 4:
             return True
-        # First game round
         if self.total_mission == 0:
             return True
-        # Return true if the leader is itself
         if leader == self.player_number:
             return True
 
         if self.spy:
             spies_on_mission = self.get_spies_on_mission()
-            # Check if the entire team consist of just spies
-            return spies_on_mission != len(mission)
+            if self.failed_missions == 2 or spies_on_mission:
+                return True
+            if spies_on_mission == len(mission):
+                return False
         elif self.player_number not in mission:
-            # Must include itself as it is resistance
             return False
         else:
-            # Check the sus table and see if the team has
-            # the least amount of sus points
             sorted_sus_table = {
                 k: v
                 for k, v in sorted(self.sus_table.items(), key=lambda item: item[1])
@@ -231,27 +225,21 @@ class BRAgent(Agent):
             bool:
                 True if this agent chooses to betray the mission, False otherwise.
         """
-        # Resistance must not betray
         if not self.spy:
             return False
 
-        # Return false if only 2 players in a team
         if len(mission) == 2:
             return False
-        # Return true if it is the last mission to win
         if self.failed_missions == 2:
             return True
-        # Retrun true as it is the last round
         if self.failed_missions == 1 and self.total_mission == 4:
             return True
-        # Coordinates with other spies to sabotage mission
         betrayals_required = self.fails_required[self.number_of_players][
             self.total_mission
         ]
         spies_on_mission = self.get_spies_on_mission()
         if spies_on_mission <= betrayals_required:
             return True
-        # If there are more spies than what is needed then roll the dice.
         else:
             return random.random() < 0.7
 
@@ -413,17 +401,57 @@ class BRAgent(Agent):
                 The probability of pB.
         """
         pB = 0.0
+        if (
+            DEBUG
+            and not self.spy
+            and self.player_number == PLAYER_NUMBER
+            and self.total_mission == 2
+        ):
+            console.log("Combinations:", len(combinations_list))
         for spies in combinations_list:
             pB = 0.0
-            pBx = 1.0
-            # Multiply the probabilities of spies and resistances
+            pbk = 1.0
             resistances = list(set(mission) - set(spies))
+            if (
+                DEBUG
+                and not self.spy
+                and self.player_number == PLAYER_NUMBER
+                and self.total_mission == 2
+            ):
+                console.log("Resistances", resistances)
             for spy in spies:
-                pBx *= self.sus_table[spy]
+                pbk *= self.sus_table[spy]
+            if (
+                DEBUG
+                and not self.spy
+                and self.player_number == PLAYER_NUMBER
+                and self.total_mission == 2
+            ):
+                console.log("spy pbk:", pbk)
             for resistance in resistances:
-                pBx *= 1 - self.sus_table[resistance]
-            # Sum all possible combinations
-            pB += pBx
+                pbk *= 1 - self.sus_table[resistance]
+                if (
+                    DEBUG
+                    and not self.spy
+                    and self.player_number == PLAYER_NUMBER
+                    and self.total_mission == 2
+                ):
+                    console.log(
+                        "Resistance:",
+                        resistance,
+                        "sus_point:",
+                        self.sus_table[resistance],
+                        "pbk:",
+                        pbk,
+                    )
+            if (
+                DEBUG
+                and not self.spy
+                and self.player_number == PLAYER_NUMBER
+                and self.total_mission == 2
+            ):
+                console.log("resistance pbk:", pbk)
+            pB += pbk
         if not pB:
             return 1.0
         return pB
