@@ -9,15 +9,20 @@ install(show_locals=True)
 
 LOG = False
 
+
 def permutations(config):
     """Returns unique elements from a list of permutations."""
     return list(set(itertools.permutations(config)))
 
 
 class ExpertAgent(Agent):
-    """
-    new_game and *_outcome methods simply inform agents of events that have occured,
-    while propose_mission, vote, and betray require the agent to commit some action.
+    """Simplification of Invalidator, one of the strongest AIs against bots from
+    the 2012 competition.
+    @name: Invalidator Bot
+    @author: Alex J. Champandard <alexjc@aigamedev.com>
+    @license: GNU Public License (GPL) version 3.0
+    @about: THE RESISTANCE Competition, Vienna Game/AI Conference 2012.
+    @since: 01.06.2012
     """
 
     def __init__(self, name: str = "21980614") -> None:

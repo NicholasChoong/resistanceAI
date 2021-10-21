@@ -80,8 +80,12 @@ class LocalStatistics(object):
 
 class StatAgent(Agent):
     """
-    new_game and *_outcome methods simply inform agents of events that have occured,
-    while propose_mission, vote, and betray require the agent to commit some action.
+    Bot from the 2012 competition.
+    @name: Learners Bot
+    @author: aigamedev
+    @license: GNU Public License (GPL) version 3.0
+    @about: THE RESISTANCE Competition, Vienna Game/AI Conference 2012.
+    @since: 01.06.2012
     """
 
     global_statistics = defaultdict(GlobalStatistics)
