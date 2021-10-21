@@ -1,6 +1,9 @@
 from .agent import Agent
 from .random_agent import RandomAgent
 import random
+from rich.console import Console
+
+console = Console()
 
 
 class Game:
@@ -11,7 +14,7 @@ class Game:
     to share information and get game actions
     """
 
-    def __init__(self, agents):
+    def __init__(self, agents, roles_assigned=False):
         """
         agents is the list of agents playing the game
         the list must contain 5-10 agents
@@ -29,10 +32,14 @@ class Game:
         self.num_players = len(agents)
         # allocate spies
         self.spies = []
-        while len(self.spies) < Agent.spy_count[self.num_players]:
-            spy = random.randrange(self.num_players)
-            if spy not in self.spies:
-                self.spies.append(spy)
+        if not roles_assigned:
+            while len(self.spies) < Agent.spy_count[self.num_players]:
+                spy = random.randrange(self.num_players)
+                if spy not in self.spies:
+                    self.spies.append(spy)
+        else:
+            self.spies = list(range(self.num_players))[3:5]
+            console.log(self.spies)
         # start game for each agent
         for agent_id in range(self.num_players):
             spy_list = self.spies.copy() if agent_id in self.spies else []
