@@ -126,10 +126,11 @@ class BayeBehaviourAgent(Agent):
             
             for p in range(self.number_of_players):
                 if p != self.player_number:
-                    team.append(p)
+                    ref_list.append(p)
             
             while len(team) < team_size:
                 random_agent = random.choice(ref_list)
+                team.append(random_agent)
                 ref_list.remove(random_agent)
 
         else:
