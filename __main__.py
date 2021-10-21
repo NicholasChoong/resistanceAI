@@ -22,6 +22,7 @@ if __name__ == "__main__":
     if SEED:
         random.seed(SEED)
     seed = 0
+    seeds = []
     agents = [
         BayeBehaviourAgent(name="BayeBehaviourAgent"),
         # BRAgent(name="BRAgent1"),
@@ -58,9 +59,10 @@ if __name__ == "__main__":
 
     roles_assigned = False
     total_wins = 0
-    number_of_games = 10000
+    number_of_games = 10
     for _ in track(range(number_of_games), description="Playing..."):
         seed = random.randrange(0, 2 ** 32 - 1)
+        seeds.append(seed)
         # console.log(seed)
         random.seed(seed)
         np.random.seed(seed)
@@ -81,6 +83,7 @@ if __name__ == "__main__":
             total_wins += 1
     console.log()
     console.log("######################################")
+    console.log(f"Seeds Test: {len(set(seeds) & set([577090037,2364836463,1991203165,3271461370,3457313376,521895542,2909462035,3441764289,3451104866,1337851119,]))== len(seeds)}")
     console.log(f"Seed: {seed}")
     console.log(f"Assigned roles: {roles_assigned}")
     console.log(f"Number of players: {len(agents)}")
@@ -88,6 +91,6 @@ if __name__ == "__main__":
     console.log(
         f"Spy win rate: {((number_of_games - total_wins)/number_of_games)*100:.2f}%"
     )
-    console.log(f"Total wins: {total_wins} / {number_of_games}", log_locals=True)
+    console.log(f"Total wins: {total_wins} / {number_of_games}")
     console.log("######################################")
-    console.log()
+    console.log(log_locals=True)
