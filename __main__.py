@@ -9,6 +9,7 @@ from s21980614.random_agent import RandomAgent
 from s21980614.br_agent import BRAgent
 from s21980614.learners import StatAgent
 from s21980614.experts import ExpertAgent
+from s22412148.baye_behaviour_agent import BayeBehaviourAgent
 
 install(show_locals=True)
 
@@ -28,49 +29,15 @@ if __name__ == "__main__":
         np.random.seed(seed)
 
     agents = [
-        # RejectAgent(name="r1"),
-        # RejectAgent(name="r2"),
-        # RejectAgent(name="r3"),
-        # RejectAgent(name="r4"),
-        # RejectAgent(name="r5"),
-        # RejectAgent(name="r6"),
-        # RejectAgent(name="r7"),
-        # RandomAgent(name="r1"),
-        # RandomAgent(name="r2"),
-        # RandomAgent(name="r3"),
-        # RandomAgent(name="r4"),
-        # RandomAgent(name="r5"),
-        # RandomAgent(name="r6"),
-        # RandomAgent(name="r7"),
-        # BRAgent(name="1"),
-        # BRAgent(name="2"),
-        # BRAgent(name="3"),
-        # BRAgent(name="4"),
-        # BRAgent(name="5"),
-        # BRAgent(name="6"),
-        # BRAgent(name="7"),
-        # BRAgent(name="8"),
-        # BRAgent(name="9"),
-        # BRAgent(name="10"),
-        # StatAgent(name="1"),
-        # StatAgent(name="2"),
-        # StatAgent(name="3"),
-        # StatAgent(name="4"),
-        # StatAgent(name="5"),
-        # StatAgent(name="6"),
-        # StatAgent(name="7"),
-        # StatAgent(name="8"),
-        # StatAgent(name="9"),
-        # StatAgent(name="10"),
-        ExpertAgent(name="1"),
-        ExpertAgent(name="2"),
-        ExpertAgent(name="3"),
-        ExpertAgent(name="4"),
-        ExpertAgent(name="5"),
+        BRAgent(name="BRAgent"),
+        BayeBehaviourAgent(name="BayeBehaviourAgent"),
+        ExpertAgent(name="ExpertAgent 1"),
+        ExpertAgent(name="ExpertAgent 2"),
+        StatAgent(name="StatAgent"),
     ]
 
     total_wins = 0
-    number_of_games = 1000
+    number_of_games = 10000
     for _ in track(range(number_of_games), description="Playing..."):
         game = Game(agents)
         game.play()
@@ -85,13 +52,3 @@ if __name__ == "__main__":
     console.log(f"Number of players: {len(agents)}")
     console.log(f"Win rate: {(total_wins/number_of_games)*100:.1f}%")
     console.log(f"Total wins: {total_wins} / {number_of_games}", log_locals=True)
-
-# Seed:  2521288640
-# Seed:  1539842963
-# Seed:  1051247700
-# Seed:  4220499009
-# Seed:  772275764
-# Seed:  1048521470
-# Seed:  921622142
-# Seed:  645094810
-# Seed:  1852503608
