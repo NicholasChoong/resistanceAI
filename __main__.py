@@ -83,7 +83,9 @@ if __name__ == "__main__":
             total_wins += 1
     console.log()
     console.log("######################################")
-    console.log(f"Seeds Test: {len(set(seeds) & set([577090037,2364836463,1991203165,3271461370,3457313376,521895542,2909462035,3441764289,3451104866,1337851119,]))== len(seeds)}")
+    console.log(
+        f"Seeds Test: {len(set(seeds) & set([577090037,2364836463,1991203165,3271461370,3457313376,521895542,2909462035,3441764289,3451104866,1337851119,]))== len(seeds)}"
+    )
     console.log(f"Seed: {seed}")
     console.log(f"Assigned roles: {roles_assigned}")
     console.log(f"Number of players: {len(agents)}")
