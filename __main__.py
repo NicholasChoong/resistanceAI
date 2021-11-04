@@ -39,13 +39,13 @@ if __name__ == "__main__":
         BRAgent(name="BRAgent Res 1"),
         BayeBehaviourAgent(name="BayeBehaviourAgent Spy 1"),
         BayeBehaviourAgent(name="BayeBehaviourAgent Spy 2"),
-        #BayeBehaviourAgent(name="BayeBehaviourAgent Spy 3"),
-        #BayeBehaviourAgent(name="BayeBehaviourAgent Spy 4"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent Spy 3"),
+        # BayeBehaviourAgent(name="BayeBehaviourAgent Spy 4"),
         BRAgent(name="BRAgent Res 2"),
         BRAgent(name="BRAgent Res 3"),
-        #BRAgent(name="BRAgent Res 4"),
-        #BRAgent(name="BRAgent Res 5"),
-        #BRAgent(name="BRAgent Res 6"),
+        # BRAgent(name="BRAgent Res 4"),
+        # BRAgent(name="BRAgent Res 5"),
+        # BRAgent(name="BRAgent Res 6"),
         # BRAgent(name="BRAgent7"),
         # BRAgent(name="BRAgent8"),
         # BRAgent(name="BRAgent9"),
@@ -83,8 +83,7 @@ if __name__ == "__main__":
     number_of_games = 10000
     a = Agent(name="Testing")
     for number_of_players in range(len(agents), len(agents) + 1):
-        # for number_of_players in range(6, 7):
-        suspected_spies_list = []
+        suspected_spies_list: list[list[int]] = []
         for _ in track(range(number_of_games), description="Playing..."):
             seed = random.randrange(0, 2 ** 32 - 1)
             # console.log(seed)
@@ -118,7 +117,7 @@ if __name__ == "__main__":
             if game.missions_lost < 3:
                 total_wins += 1
         console.log("######################################")
-        results = []
+        results: list[str] = []
         for suspected_spies in suspected_spies_list:
             if 1 in suspected_spies or 2 in suspected_spies:
                 results.append("1")
