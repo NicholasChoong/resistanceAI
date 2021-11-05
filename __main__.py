@@ -86,7 +86,6 @@ if __name__ == "__main__":
         suspected_spies_list: list[list[int]] = []
         for _ in track(range(number_of_games), description="Playing..."):
             seed = random.randrange(0, 2 ** 32 - 1)
-            # console.log(seed)
             random.seed(seed)
             np.random.seed(seed)
             game = Game(agents[0:number_of_players], roles_assigned)
